@@ -1,27 +1,30 @@
+// tsconfig.json 文件配置了 TypeScript 编译器的各种选项，包括输出目录、源映射、编译目标、模块系统等。同时，它还定义了路径别名，用于简化模块路径的引入。
+// 在此配置中，所有源码文件都被编译，包括 src 文件夹下的所有文件和所有 packages/*/src 文件夹下的文件。
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
-    "sourceMap": true,
-    "target": "esnext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "newLine": "LF",
-    "strict": true,
+    "baseUrl": ".", // 基础目录，用于解析非相对模块名称的基准目录
+    "outDir": "dist", // 编译输出的目录
+    "sourceMap": true, // 是否生成源映射文件
+    "target": "esnext", // 编译后的 JavaScript 版本
+    "module": "ESNext", // 使用的模块系统
+    "moduleResolution": "node", // 模块解析策略
+    "newLine": "LF", // 换行符风格
+    "strict": true, // 开启所有严格的类型检查
 
-    "allowJs": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
+    "allowJs": true, // 允许编译 JavaScript 文件
+    "noImplicitAny": false, // 不允许隐式的 any 类型
+    "noImplicitThis": false, // 不允许隐式的 this 类型
 
-    "noUnusedLocals": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "removeComments": false,
-    "jsx": "preserve",
-    "lib": ["esnext", "dom"],
-    "types": ["node"],
+    "noUnusedLocals": true, // 报告未使用的局部变量
+    "experimentalDecorators": true, // 启用实验性的装饰器特性
+    "resolveJsonModule": true, // 允许导入 JSON 模块
+    "esModuleInterop": true, // 为 CommonJS 模块提供 ESM 模块的导入语义
+    "removeComments": false, // 是否移除注释
+    "jsx": "preserve", // 在输出中保留 JSX 代码
+    "lib": ["esnext", "dom"], // 编译时需要包含的库文件
+    "types": ["node"], // 引入的类型声明文件
     "paths": {
+      // 路径别名配置，用于简化模块路径的引入
       "compiler/*": ["src/compiler/*"],
       "core/*": ["src/core/*"],
       "server/*": ["packages/server-renderer/src/*"],
@@ -34,5 +37,5 @@
       "vue": ["src/platforms/web/entry-runtime-with-compiler"]
     }
   },
-  "include": ["src", "packages/*/src"]
+  "include": ["src", "packages/*/src"] // 编译的文件和文件夹，支持通配符
 }
