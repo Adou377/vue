@@ -1,13 +1,18 @@
+//一个用于构建Vue.js不同版本的Rollup配置文件，包括运行时版本、包含编译器版本、用于浏览器端和服务器端的版本等。
+// 引入必要的模块和工具
 const path = require('path')
-const alias = require('@rollup/plugin-alias')
-const cjs = require('@rollup/plugin-commonjs')
-const replace = require('@rollup/plugin-replace')
-const node = require('@rollup/plugin-node-resolve').nodeResolve
-const ts = require('rollup-plugin-typescript2')
+const alias = require('@rollup/plugin-alias') // Rollup插件，用于设置别名
+const cjs = require('@rollup/plugin-commonjs') // Rollup插件，用于处理CommonJS模块
+const replace = require('@rollup/plugin-replace') // Rollup插件，用于替换文件中的字符串
+const node = require('@rollup/plugin-node-resolve').nodeResolve // Rollup插件，用于解析Node.js模块
+const ts = require('rollup-plugin-typescript2') // Rollup插件，用于处理TypeScript文件
 
+// 从环境变量或package.json中获取Vue.js的版本号
 const version = process.env.VERSION || require('../package.json').version
+// 加载特性标志（feature flags）
 const featureFlags = require('./feature-flags')
 
+// Vue.js的版权声明
 const banner =
   '/*!\n' +
   ` * Vue.js v${version}\n` +
@@ -15,6 +20,7 @@ const banner =
   ' * Released under the MIT License.\n' +
   ' */'
 
+// 别名配置，用于解析模块路径
 const aliases = require('./alias')
 const resolve = p => {
   const base = p.split('/')[0]
@@ -25,14 +31,15 @@ const resolve = p => {
   }
 }
 
-// we are bundling forked consolidate.js in compiler-sfc which dynamically
-// requires a ton of template engines which should be ignored.
+// we are bundling forked consolidate.js in compiler-sfc which dynamically -- 我们正在编译（打包）在 compiler-sfc 中分支修改过的 consolidate.js。
+// requires a ton of template engines which should be ignored. -- 在这个过程中，consolidate.js 动态地引入了很多模板引擎，但我们希望忽略（不处理）这些引入，只关注 consolidate.js 的核心功能。
 const consolidatePath = require.resolve('@vue/consolidate/package.json', {
   paths: [path.resolve(__dirname, '../packages/compiler-sfc')]
 })
 
+// 配置不同构建版本的选项
 const builds = {
-  // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
+  // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify -- 运行时版本（仅包含运行时），用于模块打包工具（如Webpack和Browserify）
   'runtime-cjs-dev': {
     entry: resolve('web/entry-runtime.ts'),
     dest: resolve('dist/vue.runtime.common.dev.js'),
@@ -47,7 +54,7 @@ const builds = {
     env: 'production',
     banner
   },
-  // Runtime+compiler CommonJS build (CommonJS)
+  // Runtime+compiler CommonJS build (CommonJS) -- 包含编译器的运行时版本（CommonJS模块）
   'full-cjs-dev': {
     entry: resolve('web/entry-runtime-with-compiler.ts'),
     dest: resolve('dist/vue.common.dev.js'),
@@ -64,14 +71,14 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // Runtime only ES modules build (for bundlers)
+  // Runtime only ES modules build (for bundlers) -- 仅运行时版本（ES模块），适用于支持ES模块的模块打包工具，如Rollup和Webpack 2
   'runtime-esm': {
     entry: resolve('web/entry-runtime-esm.ts'),
     dest: resolve('dist/vue.runtime.esm.js'),
     format: 'es',
     banner
   },
-  // Runtime+compiler ES modules build (for bundlers)
+  // Runtime+compiler ES modules build (for bundlers) -- 运行时+编译器的ES模块版本，适用于支持ES模块的模块打包工具，如Rollup和Webpack 2
   'full-esm': {
     entry: resolve('web/entry-runtime-with-compiler-esm.ts'),
     dest: resolve('dist/vue.esm.js'),
@@ -79,7 +86,7 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // Runtime+compiler ES modules build (for direct import in browser)
+  // Runtime+compiler ES modules build (for direct import in browser) -- 运行时+编译器的ES模块版本，可在浏览器中直接导入使用
   'full-esm-browser-dev': {
     entry: resolve('web/entry-runtime-with-compiler-esm.ts'),
     dest: resolve('dist/vue.esm.browser.js'),
@@ -89,7 +96,7 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // Runtime+compiler ES modules build (for direct import in browser)
+  // Runtime+compiler ES modules build (for direct import in browser) -- 运行时+编译器的ES模块版本，可在浏览器中直接导入使用
   'full-esm-browser-prod': {
     entry: resolve('web/entry-runtime-with-compiler-esm.ts'),
     dest: resolve('dist/vue.esm.browser.min.js'),
@@ -99,7 +106,7 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // runtime-only build (Browser)
+  // runtime-only build (Browser) -- 仅运行时版本（浏览器端）
   'runtime-dev': {
     entry: resolve('web/entry-runtime.ts'),
     dest: resolve('dist/vue.runtime.js'),
@@ -115,7 +122,7 @@ const builds = {
     env: 'production',
     banner
   },
-  // Runtime+compiler development build (Browser)
+  // Runtime+compiler development build (Browser) -- 运行时+编译器版本（浏览器端），适用于开发环境
   'full-dev': {
     entry: resolve('web/entry-runtime-with-compiler.ts'),
     dest: resolve('dist/vue.js'),
@@ -124,7 +131,7 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // Runtime+compiler production build  (Browser)
+  // Runtime+compiler production build  (Browser) -- 运行时+编译器版本（浏览器端），适用于生产环境
   'full-prod': {
     entry: resolve('web/entry-runtime-with-compiler.ts'),
     dest: resolve('dist/vue.min.js'),
@@ -133,7 +140,7 @@ const builds = {
     alias: { he: './entity-decoder' },
     banner
   },
-  // Web compiler (CommonJS).
+  // Web compiler (CommonJS). -- Web编译器版本（CommonJS模块），用于构建Web模板编译器
   compiler: {
     entry: resolve('web/entry-compiler.ts'),
     dest: resolve('packages/template-compiler/build.js'),
@@ -142,7 +149,7 @@ const builds = {
       require('../packages/template-compiler/package.json').dependencies
     )
   },
-  // Web compiler (UMD for in-browser use).
+  // Web compiler (UMD for in-browser use). -- Web编译器版本（UMD模块，供浏览器使用），用于在浏览器中使用Vue的编译器
   'compiler-browser': {
     entry: resolve('web/entry-compiler.ts'),
     dest: resolve('packages/template-compiler/browser.js'),
@@ -151,7 +158,7 @@ const builds = {
     moduleName: 'VueTemplateCompiler',
     plugins: [node(), cjs()]
   },
-  // Web server renderer (CommonJS).
+  // Web server renderer (CommonJS). -- Web服务器端渲染版本（CommonJS模块）
   'server-renderer-dev': {
     entry: resolve('packages/server-renderer/src/index.ts'),
     dest: resolve('packages/server-renderer/build.dev.js'),
@@ -225,6 +232,7 @@ const builds = {
   }
 }
 
+// 生成Rollup配置的函数
 function genConfig(name) {
   const opts = builds[name]
   const isTargetingBrowser = !(
@@ -236,16 +244,18 @@ function genConfig(name) {
     input: opts.entry,
     external: opts.external,
     plugins: [
+      // 设置别名
       alias({
         entries: Object.assign({}, aliases, opts.alias)
       }),
+      // 处理TypeScript文件
       ts({
         tsconfig: path.resolve(__dirname, '../', 'tsconfig.json'),
         cacheRoot: path.resolve(__dirname, '../', 'node_modules/.rts2_cache'),
         tsconfigOverride: {
           compilerOptions: {
-            // if targeting browser, target es5
-            // if targeting node, es2017 means Node 8
+            // if targeting browser, target es5 -- 如果目标是浏览器，设置为es5
+            // if targeting node, es2017 means Node 8 -- 如果目标是Node.js，es2017意味着Node 8
             target: isTargetingBrowser ? 'es5' : 'es2017'
           },
           include: isTargetingBrowser ? ['src'] : ['src', 'packages/*/src'],
@@ -260,6 +270,7 @@ function genConfig(name) {
       name: opts.moduleName || 'Vue',
       exports: 'auto'
     },
+    // 处理警告信息
     onwarn: (msg, warn) => {
       if (!/Circular/.test(msg)) {
         warn(msg)
@@ -269,6 +280,7 @@ function genConfig(name) {
 
   // console.log('pluging', config.plugins)
 
+  // 内置变量
   // built-in vars
   const vars = {
     __VERSION__: version,
@@ -276,10 +288,12 @@ function genConfig(name) {
     __TEST__: false,
     __GLOBAL__: opts.format === 'umd' || name.includes('browser')
   }
+  // 特性标志
   // feature flags
   Object.keys(featureFlags).forEach(key => {
     vars[`process.env.${key}`] = featureFlags[key]
   })
+  // 构建特定的环境
   // build-specific env
   if (opts.env) {
     vars['process.env.NODE_ENV'] = JSON.stringify(opts.env)
@@ -297,9 +311,11 @@ function genConfig(name) {
   return config
 }
 
+// 如果有指定的构建目标，导出对应的配置
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {
+  // 导出所有构建版本的配置
   exports.getBuild = genConfig
   exports.getAllBuilds = () => Object.keys(builds).map(genConfig)
 }
