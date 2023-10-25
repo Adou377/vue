@@ -264,6 +264,7 @@ export function mountComponent(
   // mounted is called for render-created child components in its inserted hook
   // 如果 $vnode 为 null，说明是手动挂载的实例，调用 mounted 钩子函数
   if (vm.$vnode == null) {
+    // vm.$vnode 表示 Vue 实例的父虚拟 Node ，为 null 则表示当前是 Vue 的根实例
     vm._isMounted = true
     callHook(vm, 'mounted')
   }
